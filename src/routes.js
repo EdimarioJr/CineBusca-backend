@@ -1,13 +1,14 @@
-import express from 'express'
+import express from "express";
+import userController from "./controllers/userController";
 
-const routes = express.Router()
+const routes = express.Router();
 
-routes.get('/',(req,res)=>{
-    return res.send('GET HOMEPAGE')
-})
+routes.get("/", (req, res) => {
+  return res.send("GET HOMEPAGE");
+});
 
-routes.post('/login',(req,res)=>{
-    return res.send('login usuario')
-})
+routes.post("/signin", userController.auth);
+
+routes.post("/signup", userController.create);
 
 export default routes;
