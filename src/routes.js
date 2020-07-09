@@ -11,4 +11,6 @@ routes.post("/signin", userController.auth);
 
 routes.post("/signup", userController.create);
 
+routes.get('/watchlist',userController.index);
+
 export default routes;
