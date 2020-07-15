@@ -1,5 +1,4 @@
 import User from "../db/Model/User"
-import { response } from "express";
 
 const checkUsername = async (name) => {
   const search = new RegExp(name, "i");
