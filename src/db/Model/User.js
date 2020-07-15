@@ -5,7 +5,8 @@ const UserSchema = new Schema({
   name: {
     type: String,
     required: [true, "The first name is obrigatory!"],
-    unique: [true, "Esse nome já foi cadastrado!"]
+    unique: [true, "Esse nome já foi cadastrado!"],
+    trim: true
   },
   password: {
     type: String,

@@ -6,8 +6,6 @@ import jwt from "jsonwebtoken";
 const userController = {
   create: async (req, res) => {
     let { name, password, watchlist } = req.body;
-    // clear the spaces after and before the name
-    name = name.trim();
     // checkUsername will return the user, if the user exists
     if (await checkUsername(name)) {
       return res.json({
@@ -46,9 +44,8 @@ const userController = {
   },
 
   auth: async (req, res) => {
-    let { name, password } = req.body;
-    name = name.trim();
-    const user = await checkUsername();
+    const { name, password } = req.body;
+    const user = await checkUsername(name);
     if (user) {
       // if user exists, we will compare the password in the DB with the password from the front end.
       // for that the method compare of bcrypt is used
@@ -61,7 +58,7 @@ const userController = {
           expiresIn: 300,
         });
         return res.json({ message: "Acesso garantido!", token, signin: true });
-      } else return res.json({ message: "Senha incorreta!", signin: false });
+      } else return res.json({ message: "Wrong password!", signin: false });
     } else {
       return res.json({ message: "Username don't exist!", signin: false });
     }
@@ -70,25 +67,27 @@ const userController = {
   index: async (req, res) => {
     // when the user tries to access the watchlist, the jwt will be required
     // the token will be sended from the front end in the headers of the requisition
-    const token = req.headers["x-access-token"];
-    let id;
+    const token = req.headers.authorization;
+    let id = "";
     if (!token) return res.json({ message: "No token provided!", auth: false });
     // verifying the authenticity of the token
     jwt.verify(token, process.env.SECRET_JWT, (err, decoded) => {
       if (err)
-        return res.json({ message: "Authentication failed!", auth: false });
+        return res.json({ message: "Authentication failed!", auth: false, err: err });
       id = decoded.id;
     });
     // if the token is cool, we will use the id in the payload of the token to make a request to the DB
-    let userW = await User.findOne({ _id: id }, (err) => {
-      if (err) return res.json({ message: "User not found!", auth: true });
-    });
-    userW = userW.watchlist;
-    return res.json({ message: "User found!", watchlist: userW, auth: true });
+    if (id) {
+      let userW = await User.findOne({ _id: id }, (err) => {
+        if (err) return res.json({ message: "User not found!", auth: true });
+      });
+      userW = userW.watchlist;
+      return res.json({ message: "User found!", watchlist: userW, auth: true });
+    }
   },
 
   logout: async (req, res) => {
-    return res.json({ message: "User logout!", token: null });
+    return res.json({ message: "User logout!", token: null, auth: false });
   },
 };
 
