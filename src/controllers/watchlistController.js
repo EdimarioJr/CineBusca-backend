@@ -45,12 +45,12 @@ const watchlistController = {
           if (err)
             return res.json({
               message: "Error adding in the watchlist",
-              add: false,
+              addWatchlist: false,
               err: err,
             });
           return res.json({
             message: "Added with success in the watchlist",
-            add: true,
+            addWatchlist: true,
           });
         }
       );
@@ -59,7 +59,6 @@ const watchlistController = {
 
   destroy: async (req, res) => {
     const idMovie = req.query.idMovie
-    console.log(idMovie)
     const token = req.headers.authorization;
     if (!token) return res.json({ message: "No token provided!", auth: false });
     let resultCheck = checkToken(token);

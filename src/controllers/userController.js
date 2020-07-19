@@ -2,7 +2,6 @@ import User from "../db/Model/User";
 import bcrypt from "bcrypt";
 import checkUsername from "../utils/checkUsername";
 import jwt from "jsonwebtoken";
-import checkToken from "../utils/checkToken";
 
 const userController = {
   create: async (req, res) => {
