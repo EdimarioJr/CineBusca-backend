@@ -6,23 +6,30 @@ const UserSchema = new Schema({
     type: String,
     required: [true, "The first name is obrigatory!"],
     unique: [true, "Esse nome já foi cadastrado!"],
-    trim: true
+    trim: true,
   },
   password: {
     type: String,
     required: [true, "The second name is obrigatory!"],
   },
   watchlist: [String],
-  reviews: [{
-    idMovie: {
-      type: Number,
-      required: [true, "The id of the movie is obrigatory!"]
+  reviews: [
+    {
+      idMovie: {
+        type: Number,
+        required: [true, "The id of the movie is obrigatory!"],
+      },
+      review: {
+        type: String,
+        required: [true, "The review can't be null!"],
+      },
+      score: Number,
+      date: {
+        type: Date,
+        default: Date.now,
+      },
     },
-    review: {
-      type: String,
-      required: [true, "The review can't be null!"]
-    }
-  }]
+  ],
 });
 
 export default mongoose.model("User", UserSchema);
