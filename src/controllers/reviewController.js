@@ -3,25 +3,55 @@ import checkToken from "../utils/checkToken";
 
 const reviewController = {
   create: async (req, res) => {
-    const { idMovie, review } = req.body;
+    const { idMovie, review, score } = req.body;
     const token = req.headers.authorization;
     if (!token) return res.json({ message: "No token provided!", auth: false });
     let resultCheck = checkToken(token);
     if (resultCheck.id) {
-      await User.updateOne(
+      const user = await User.findOne(
         { _id: resultCheck.id },
-        { $addToSet: { reviews: { idMovie, review } } },
         (err) => {
           if (err)
             return res.json({
-              message: "Error adding the review",
-              addReview: false,
+              message: "Cannot find user",
               err: err,
             });
-          return res.json({
-            message: "Added review with success",
-            addReview: true,
-          });
+        }
+      );
+      let reviewExists = false;
+      user.reviews.forEach((current) => {
+        if (current.idMovie === idMovie) reviewExists = true;
+      });
+      if (reviewExists) {
+        await User.updateOne(
+          { _id: resultCheck.id },
+          { $pull: { reviews: { idMovie } } },
+          (err) => {
+            if (err)
+              return res.json({
+                message: "Can't delete the old review!",
+                review: false,
+                err: err,
+              });
+          }
+        );
+      }
+      await User.updateOne(
+        { _id: resultCheck.id },
+        { $addToSet: { reviews: { idMovie, review, score } } },
+        (err) => {
+          if (err)
+            return res.json({
+              message: "Can't delete the old review!",
+              review: false,
+              err: err,
+            });
+          else
+            return res.json({
+              message: "Review updated with success!!",
+              review: true,
+              text: review,
+            });
         }
       );
     } else return res.json(resultCheck);
@@ -32,7 +62,7 @@ const reviewController = {
     if (!token) return res.json({ message: "No token provided!", auth: false });
     let resultCheck = checkToken(token);
     if (resultCheck.id) {
-      const userReviews = await User.findOne({ _id: resultCheck.id }, (err) => {
+      const user = await User.findOne({ _id: resultCheck.id }, (err) => {
         if (err)
           return res.json({
             message: "Can't find the user!",
@@ -40,7 +70,7 @@ const reviewController = {
             err: err,
           });
       });
-      return res.json(userReviews.reviews);
+      return res.json(user.reviews);
     } else return res.json(resultCheck);
   },
 
