@@ -4,51 +4,50 @@ import checkToken from "../utils/checkToken";
 const reviewController = {
   create: async (req, res) => {
     const { idMovie, review, score } = req.body;
-    const token = req.headers.authorization;
-    if (!token) return res.json({ message: "No token provided!", auth: false });
-    let resultCheck = checkToken(token);
-    if (resultCheck.id) {
-      const user = await User.findOne(
-        { _id: resultCheck.id },
-        (err) => {
-          if (err)
-            return res.json({
-              message: "Cannot find user",
-              err: err,
-            });
-        }
-      );
-      let reviewExists = false;
-      user.reviews.forEach((current) => {
-        if (current.idMovie === idMovie) reviewExists = true;
+    let resultCheck = checkToken(req.headers.authorization);
+    if (resultCheck.auth) {
+      const user = await User.findOne({ _id: resultCheck.id }, (err) => {
+        if (err)
+          return res.json({
+            message: "Cannot find user",
+            err: err,
+            review: false
+          });
       });
-      if (reviewExists) {
-        await User.updateOne(
-          { _id: resultCheck.id },
-          { $pull: { reviews: { idMovie } } },
-          (err) => {
-            if (err)
-              return res.json({
-                message: "Can't delete the old review!",
-                review: false,
-                err: err,
-              });
-          }
-        );
-      }
+
+      if (user.review) {
+        let reviewExists = false;
+        user.reviews.forEach((current) => {
+          if (current.idMovie === idMovie) reviewExists = true;
+        });
+        if (reviewExists) {
+          await User.updateOne(
+            { _id: resultCheck.id },
+            { $pull: { reviews: { idMovie } } },
+            (err) => {
+              if (err)
+                return res.json({
+                  message: "Can't delete the old review!",
+                  review: false,
+                  err: err,
+                });
+            }
+          );
+        }
+      } else return res.json(user)
       await User.updateOne(
         { _id: resultCheck.id },
         { $addToSet: { reviews: { idMovie, review, score } } },
         (err) => {
           if (err)
             return res.json({
-              message: "Can't delete the old review!",
+              message: "Can't add the new review!",
               review: false,
               err: err,
             });
           else
             return res.json({
-              message: "Review updated with success!!",
+              message: "Review added with success!!",
               review: true,
               text: review,
             });
@@ -58,10 +57,8 @@ const reviewController = {
   },
 
   index: async (req, res) => {
-    const token = req.headers.authorization;
-    if (!token) return res.json({ message: "No token provided!", auth: false });
-    let resultCheck = checkToken(token);
-    if (resultCheck.id) {
+    let resultCheck = checkToken(req.headers.authorization);
+    if (resultCheck.auth) {
       const user = await User.findOne({ _id: resultCheck.id }, (err) => {
         if (err)
           return res.json({
@@ -76,10 +73,8 @@ const reviewController = {
 
   destroy: async (req, res) => {
     const idMovie = req.query.idMovie;
-    const token = req.headers.authorization;
-    if (!token) return res.json({ message: "No token provided!", auth: false });
-    let resultCheck = checkToken(token);
-    if (resultCheck.id) {
+    let resultCheck = checkToken(req.headers.authorization);
+    if (resultCheck.auth) {
       await User.updateOne(
         { _id: resultCheck.id },
         { $pull: { reviews: { idMovie } } },
