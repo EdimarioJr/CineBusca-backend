@@ -11,7 +11,7 @@ const reviewController = {
           return res.json({
             message: "Cannot find user",
             err: err,
-            review: false
+            review: false,
           });
       });
 
@@ -34,7 +34,7 @@ const reviewController = {
             }
           );
         }
-      } else return res.json(user)
+      }
       await User.updateOne(
         { _id: resultCheck.id },
         { $addToSet: { reviews: { idMovie, review, score } } },
@@ -53,7 +53,7 @@ const reviewController = {
             });
         }
       );
-    } else return res.json(resultCheck);
+    } else return res.json({ ...resultCheck, review: false });
   },
 
   index: async (req, res) => {
@@ -67,8 +67,11 @@ const reviewController = {
             err: err,
           });
       });
-      return res.json(user.reviews);
-    } else return res.json(resultCheck);
+      return res.json({
+        reviews: user.reviews,
+        message: "User reviews found!",
+      });
+    } else return res.json({ ...resultCheck, reviews: false });
   },
 
   destroy: async (req, res) => {
@@ -82,16 +85,16 @@ const reviewController = {
           if (err)
             return res.json({
               message: "Can't delete the review!",
-              deleteReview: false,
+              review: false,
               err: err,
             });
           return res.json({
             message: "Review deleted!",
-            deleteReview: true,
+            review: true,
           });
         }
       );
-    } else return res.json(resultCheck);
+    } else return res.json({ ...resultCheck, review: false });
   },
 };
 

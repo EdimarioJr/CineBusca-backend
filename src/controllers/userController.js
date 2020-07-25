@@ -55,7 +55,7 @@ const userController = {
         // if the password is correct, the jwt TOKEN will be created and will be returned to the user
         // the id of the user will be the payload of the jwt
         const token = jwt.sign({ id }, process.env.SECRET_JWT, {
-          expiresIn: 3000,
+          expiresIn: 240000,
         });
         return res.json({ message: "Acesso garantido!", token, signin: true });
       } else return res.json({ message: "Wrong password!", signin: false });

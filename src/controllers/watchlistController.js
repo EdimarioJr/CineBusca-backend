@@ -18,7 +18,7 @@ const watchlistController = {
       });
       userW = userW.watchlist;
       return res.json({ message: "User found!", watchlist: userW });
-    } else return res.json(resultCheck);
+    } else return res.json({ ...resultCheck, watchlist: false });
   },
 
   // adds a new movie to the watchlist
@@ -34,39 +34,39 @@ const watchlistController = {
           if (err)
             return res.json({
               message: "Error adding in the watchlist",
-              addWatchlist: false,
+              watchlist: false,
               err: err,
             });
           return res.json({
             message: "Added with success in the watchlist",
-            addWatchlist: true,
+            watchlist: true,
           });
         }
       );
-    } else return res.json(resultCheck);
+    } else return res.json({...resultCheck, watchlist: false});
   },
 
   destroy: async (req, res) => {
-    const idMovie = req.query.idMovie
+    const idMovie = req.query.idMovie;
     let resultCheck = checkToken(req.headers.authorization);
     if (resultCheck.id) {
       await User.updateOne(
         { _id: resultCheck.id },
-        { $pull: { watchlist: idMovie} },
+        { $pull: { watchlist: idMovie } },
         (err) => {
           if (err)
             return res.json({
               message: "Error removing from the watchlist",
-              remove: false,
+              watchlist: false,
               err: err,
             });
           return res.json({
             message: "Removed with success from the watchlist",
-            remove: true,
+            watchlist: true,
           });
         }
       );
-    } else return res.json(resultCheck);
+    } else return res.json({...resultCheck,watchlist: false});
   },
 };
 
