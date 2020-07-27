@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 const userController = {
   create: async (req, res) => {
-    let { name, password, watchlist } = req.body;
+    let { name, password } = req.body;
     // checkUsername will return the user, if the user exists
     if (await checkUsername(name)) {
       return res.json({
@@ -20,7 +20,6 @@ const userController = {
         const newUser = new User({
           name,
           password: encryptedPassword,
-          watchlist,
         });
         newUser
           .save()
