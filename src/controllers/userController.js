@@ -16,7 +16,6 @@ const userController = {
       // crypting the password, with salt = 10,  10 terms are add before the password
       bcrypt.hash(password, 10).then((hash) => {
         const encryptedPassword = hash;
-        watchlist = watchlist ? watchlist : [];
         const newUser = new User({
           name,
           password: encryptedPassword,
